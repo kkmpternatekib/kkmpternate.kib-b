@@ -1454,11 +1454,12 @@ var M1 = {
     const buat = (id, cfg) => { if (S.grafik[id]) S.grafik[id].destroy(); S.grafik[id] = new window.Chart($(id), cfg); };
     // Administrator tanpa filter KKMP: satu batang per KKMP (total GERAI + KLINIK + GUDANG). Selain itu: per lokasi unit.
     const perKKMP = S.peran === 'A' && !M1.kkmp && Array.isArray(d.perKKMP);
-    const kata = t => String(t).split(/\s+/).filter(String);
+    // Desktop: label tegak bersusun per kata. HP: label satu baris dimiringkan agar tidak bertumpuk.
+    const kata = t => hp ? String(t) : String(t).split(/\s+/).filter(String);
     const grafikLok = perKKMP ? d.perKKMP.map(x => ({ label: kata(x.nama), jumlah: x.jumlah }))
-      : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? [l.nama].concat(kata(l.kkmp)) : l.nama, jumlah: l.jumlah }));
+      : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? (hp ? l.nama + ' – ' + l.kkmp : [l.nama].concat(kata(l.kkmp))) : l.nama, jumlah: l.jumlah }));
     const opsiLok = sumbu();
-    opsiLok.scales.x.ticks = { maxRotation: 0, minRotation: 0, autoSkip: false, font: { size: hp ? 10 : 12 } };
+    opsiLok.scales.x.ticks = { maxRotation: hp ? 60 : 0, minRotation: hp ? 60 : 0, autoSkip: false, font: { size: hp ? 10 : 12 } };
     buat('m1-grafik-lokasi', { type: 'bar', data: {
       labels: grafikLok.map(x => x.label),
       datasets: [{ label: 'Jumlah Barang', data: grafikLok.map(x => x.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: opsiLok });
