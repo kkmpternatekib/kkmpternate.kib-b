@@ -818,14 +818,14 @@ textarea.masukan { height: auto; min-height: 72px; padding: 10px 14px; resize: v
   /* Manager Koperasi: judul halaman tampil utuh, chip KKMP pindah ke baris kedua header */
   .peran-m .topbar {
     display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; column-gap: 12px; row-gap: 8px;
-    grid-template-areas: "menu judul tema profil" ". kkmp kkmp kkmp";
+    grid-template-areas: "menu judul tema profil" "kkmp kkmp kkmp kkmp";
   }
   .peran-m #btn-menu { grid-area: menu; }
   .peran-m .topbar-judul { grid-area: judul; }
   .peran-m #btn-tema { grid-area: tema; }
   .peran-m .profil-wadah { grid-area: profil; }
-  .peran-m #topbar-kkmp { grid-area: kkmp; justify-self: start; max-width: 100%; }
-  .peran-m #topbar-kkmp b { max-width: none; }
+  .peran-m #topbar-kkmp { grid-area: kkmp; justify-self: stretch; justify-content: center; border-radius: 10px; padding: 8px 12px; }
+  .peran-m #topbar-kkmp b { max-width: none; white-space: normal; text-align: center; }
   .peran-m .topbar-judul h1, .peran-m .topbar-judul p { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; }
   .tabel-kartu td.sel-kosong .kosong { width: 100%; }
   .tabel-kartu tbody tr:nth-child(even) td, .tabel-kartu tbody tr:hover td { background: none; }
