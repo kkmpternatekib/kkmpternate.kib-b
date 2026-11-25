@@ -250,7 +250,7 @@ function muatChart() {
   if (!chartJanji) {
     chartJanji = new Promise((res, rej) => {
       const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+      s.src = 'js/chart.umd.min.js'; // Chart.js 4.4.1 disimpan di repo sendiri (tidak bergantung CDN)
       s.onload = res;
       s.onerror = () => { chartJanji = null; rej(new Error('Grafik gagal dimuat.')); };
       document.head.appendChild(s);
