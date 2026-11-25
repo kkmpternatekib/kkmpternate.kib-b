@@ -1438,9 +1438,13 @@ var M1 = {
     const sumbu = () => ({ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
       scales: { x: { grid: { color: garis } }, y: { beginAtZero: true, grid: { color: garis }, ticks: { precision: 0 } } } });
     const buat = (id, cfg) => { if (S.grafik[id]) S.grafik[id].destroy(); S.grafik[id] = new window.Chart($(id), cfg); };
+    // Administrator tanpa filter KKMP: satu batang per KKMP (total GERAI + KLINIK + GUDANG). Selain itu: per lokasi unit.
+    const perKKMP = S.peran === 'A' && !M1.kkmp && Array.isArray(d.perKKMP);
+    const grafikLok = perKKMP ? d.perKKMP.map(x => ({ label: x.nama, jumlah: x.jumlah }))
+      : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? l.nama + ' – ' + l.kkmp : l.nama, jumlah: l.jumlah }));
     buat('m1-grafik-lokasi', { type: 'bar', data: {
-      labels: d.perLokasi.map(l => S.multi && !M1.kkmp ? l.nama + ' – ' + l.kkmp : l.nama),
-      datasets: [{ label: 'Jumlah Barang', data: d.perLokasi.map(l => l.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: sumbu() });
+      labels: grafikLok.map(x => x.label),
+      datasets: [{ label: 'Jumlah Barang', data: grafikLok.map(x => x.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: sumbu() });
     buat('m1-grafik-kondisi', { type: 'doughnut', data: {
       labels: d.perKondisi.map(x => x.nama),
       datasets: [{ data: d.perKondisi.map(x => x.jumlah), backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
