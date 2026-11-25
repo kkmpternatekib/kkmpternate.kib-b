@@ -1237,6 +1237,7 @@ function siapkanApp() {
   $$('.hanya-admin').forEach(e => tampil(e, S.peran === 'A'));
   $$('.hanya-kelola').forEach(e => tampil(e, S.peran !== 'V'));
   $$('.hanya-multi').forEach(e => tampil(e, S.multi));
+  $$('.sembunyi-manager').forEach(e => tampil(e, S.peran !== 'M'));
   const menu = MENU_PERAN[S.peran];
   $$('.nav-item').forEach(b => tampil(b, menu.indexOf(b.dataset.menu) >= 0));
   tampil('nav-grup-admin', S.peran === 'A');
@@ -1444,10 +1445,17 @@ var M1 = {
       labels: d.perKondisi.map(x => x.nama),
       datasets: [{ data: d.perKondisi.map(x => x.jumlah), backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom' } } } });
-    buat('m1-grafik-kategori', { type: 'bar', data: {
-      labels: d.perKategori.map(x => x.nama),
-      datasets: [{ label: 'Jumlah Barang', data: d.perKategori.map(x => x.jumlah), backgroundColor: '#38BDF8', borderRadius: 6, maxBarThickness: 26 }] },
-      options: Object.assign(sumbu(), { indexAxis: 'y' }) });
+    const cp = d.capaian || { kendaraan: { realisasi: 0, target: 0, persen: 0 }, sarpras: { realisasi: 0, target: 0, persen: 0 } };
+    const baris = [['Kendaraan Operasional', cp.kendaraan], ['Sarana dan Prasarana', cp.sarpras]];
+    buat('m1-grafik-capaian', { type: 'bar', data: {
+      labels: baris.map(x => x[0] + ' (' + x[1].realisasi + '/' + x[1].target + ')'),
+      datasets: [{ label: 'Realisasi', data: baris.map(x => x[1].persen), backgroundColor: ['#E11D2A', '#38BDF8'], borderRadius: 6, maxBarThickness: 34 }] },
+      options: Object.assign(sumbu(), { indexAxis: 'y',
+        scales: { x: { min: 0, max: 100, grid: { color: garis }, ticks: { callback: v => v + '%' } }, y: { grid: { color: garis } } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => {
+          const x = baris[c.dataIndex][1];
+          return ' ' + String(x.persen).replace('.', ',') + '% (' + x.realisasi + ' dari ' + x.target + ' item)';
+        } } } } }) });
   }
 };
 // ===== AKHIR BLOK: M1_DASHBOARD =====
