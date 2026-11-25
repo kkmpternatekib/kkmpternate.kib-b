@@ -1272,7 +1272,7 @@ function resetState() {
   Object.keys(S.grafik).forEach(k => { if (S.grafik[k]) S.grafik[k].destroy(); });
   S.grafik = {};
   // Kembalikan filter & pilihan KKMP tiap menu ke awal, agar akun berikutnya (mis. Manager Koperasi) tidak mewarisi pilihan akun sebelumnya.
-  M1.kkmp = '';
+  M1.kkmp = ''; M1.lokKkmp = '';
   M2.f = { q: '', kkmp: '', lokasi: '', kategori: '', kondisi: '', urut: 'NamaBarang', arah: 1, hal: 1, per: 15 };
   M3.f = { q: '', kkmp: '' };
   Object.assign(ED, { siap: false, kkmp: '', lokasi: '', target: 'kkmp', tpl: null, tplKkmp: null, sumber: '' });
@@ -1369,9 +1369,13 @@ function pasangUmum() {
 
 // ===== BLOK: M1_DASHBOARD =====
 var M1 = {
-  kkmp: '',
+  kkmp: '', lokKkmp: '',
   pasang() {
     $('m1-kkmp').onchange = e => { M1.kkmp = e.target.value; M1.muat(); };
+    $('m1-tab-lokasi').onclick = e => {
+      const b = e.target.closest('[data-kkmp]');
+      if (b) { M1.lokKkmp = b.dataset.kkmp; M1.renderLokasi(); }
+    };
   },
   buka() {
     opsiKKMP($('m1-kkmp'), 'Semua KKMP', M1.kkmp);
@@ -1397,16 +1401,7 @@ var M1 = {
     if (S.peran === 'A') kartu.push(['Total KKMP', k.totalKKMP, 'i-building', 'warna-abu'], ['Pengguna Aktif', k.totalPenggunaAktif, 'i-users', 'warna-biru']);
     $('m1-kartu').innerHTML = kartu.map(x => kartuStat(x[0], angka(x[1]), x[2], x[3])).join('');
 
-    const tl = $('m1-tbody-lokasi');
-    if (!d.perLokasi.length) barisKosong(tl, 'Belum ada lokasi unit.', 'i-pin');
-    else {
-      tl.innerHTML = d.perLokasi.map(l => '<tr><td data-label="Lokasi Unit"><b>' + esc(l.nama) + '</b></td>' +
-        (S.multi ? '<td data-label="KKMP">' + esc(l.kkmp) + '</td>' : '') +
-        '<td class="kol-angka" data-label="Jumlah">' + angka(l.jumlah) + '</td>' +
-        '<td class="kol-angka" data-label="Baik">' + angka(l.baik) + '</td>' +
-        '<td class="kol-angka" data-label="Rusak Ringan">' + angka(l.rusakRingan) + '</td>' +
-        '<td class="kol-angka" data-label="Rusak Berat">' + angka(l.rusakBerat) + '</td></tr>').join('');
-    }
+    M1.renderLokasi();
     if (S.peran === 'A') {
       const tk = $('m1-tbody-kkmp'), pk = d.perKKMP || [];
       if (!pk.length) barisKosong(tk, 'Belum ada KKMP.', 'i-building');
@@ -1428,6 +1423,24 @@ var M1 = {
     $('m1-aktivitas').innerHTML = d.aktivitas.length ? d.aktivitas.map(itemAktivitas).join('') : '<li class="teks-redup">Belum ada aktivitas.</li>';
     M1.grafik();
   },
+  // Ringkasan Jumlah Barang per Lokasi. Administrator (Semua KKMP): tombol per KKMP, tabel hanya menampilkan KKMP terpilih.
+  renderLokasi() {
+    const d = S.dash, tl = $('m1-tbody-lokasi');
+    const daftarK = d.perLokasi.map(l => l.kkmp).filter((v, i, a) => a.indexOf(v) === i);
+    const pakaiTab = S.peran === 'A' && !M1.kkmp && daftarK.length > 1;
+    if (daftarK.indexOf(M1.lokKkmp) < 0) M1.lokKkmp = daftarK[0] || '';
+    tampil('m1-tab-lokasi', pakaiTab);
+    $('m1-tab-lokasi').innerHTML = pakaiTab ? daftarK.map(n => '<button type="button" class="tab-item' + (n === M1.lokKkmp ? ' aktif' : '') +
+      '" data-kkmp="' + esc(n) + '">' + esc(n) + '</button>').join('') : '';
+    const rows = pakaiTab ? d.perLokasi.filter(l => l.kkmp === M1.lokKkmp) : d.perLokasi;
+    if (!rows.length) return barisKosong(tl, 'Belum ada lokasi unit.', 'i-pin');
+    tl.innerHTML = rows.map(l => '<tr><td data-label="Lokasi Unit"><b>' + esc(l.nama) + '</b></td>' +
+      (S.multi ? '<td data-label="KKMP">' + esc(l.kkmp) + '</td>' : '') +
+      '<td class="kol-angka" data-label="Jumlah">' + angka(l.jumlah) + '</td>' +
+      '<td class="kol-angka" data-label="Baik">' + angka(l.baik) + '</td>' +
+      '<td class="kol-angka" data-label="Rusak Ringan">' + angka(l.rusakRingan) + '</td>' +
+      '<td class="kol-angka" data-label="Rusak Berat">' + angka(l.rusakBerat) + '</td></tr>').join('');
+  },
   async grafik() {
     try { await muatChart(); } catch (e) { return; }
     if (S.menu !== 'm1' || !S.dash) return;
@@ -1441,11 +1454,14 @@ var M1 = {
     const buat = (id, cfg) => { if (S.grafik[id]) S.grafik[id].destroy(); S.grafik[id] = new window.Chart($(id), cfg); };
     // Administrator tanpa filter KKMP: satu batang per KKMP (total GERAI + KLINIK + GUDANG). Selain itu: per lokasi unit.
     const perKKMP = S.peran === 'A' && !M1.kkmp && Array.isArray(d.perKKMP);
-    const grafikLok = perKKMP ? d.perKKMP.map(x => ({ label: x.nama, jumlah: x.jumlah }))
-      : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? l.nama + ' – ' + l.kkmp : l.nama, jumlah: l.jumlah }));
+    const kata = t => String(t).split(/\s+/).filter(String);
+    const grafikLok = perKKMP ? d.perKKMP.map(x => ({ label: kata(x.nama), jumlah: x.jumlah }))
+      : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? [l.nama].concat(kata(l.kkmp)) : l.nama, jumlah: l.jumlah }));
+    const opsiLok = sumbu();
+    opsiLok.scales.x.ticks = { maxRotation: 0, minRotation: 0, autoSkip: false, font: { size: hp ? 10 : 12 } };
     buat('m1-grafik-lokasi', { type: 'bar', data: {
       labels: grafikLok.map(x => x.label),
-      datasets: [{ label: 'Jumlah Barang', data: grafikLok.map(x => x.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: sumbu() });
+      datasets: [{ label: 'Jumlah Barang', data: grafikLok.map(x => x.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: opsiLok });
     buat('m1-grafik-kondisi', { type: 'doughnut', data: {
       labels: d.perKondisi.map(x => x.nama),
       datasets: [{ data: d.perKondisi.map(x => x.jumlah), backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
