@@ -1241,6 +1241,7 @@ function siapkanApp() {
   const menu = MENU_PERAN[S.peran];
   $$('.nav-item').forEach(b => tampil(b, menu.indexOf(b.dataset.menu) >= 0));
   tampil('nav-grup-admin', S.peran === 'A');
+  $('hal-app').classList.toggle('peran-m', S.peran === 'M');
   isiProfilHeader();
   tampilLayar('hal-app');
   bukaMenu('m1');
@@ -1459,7 +1460,8 @@ var M1 = {
     const grafikLok = perKKMP ? d.perKKMP.map(x => ({ label: kata(x.nama), jumlah: x.jumlah }))
       : d.perLokasi.map(l => ({ label: S.multi && !M1.kkmp ? (hp ? l.nama + ' – ' + l.kkmp : [l.nama].concat(kata(l.kkmp))) : l.nama, jumlah: l.jumlah }));
     const opsiLok = sumbu();
-    opsiLok.scales.x.ticks = { maxRotation: hp ? 60 : 0, minRotation: hp ? 60 : 0, autoSkip: false, font: { size: hp ? 10 : 12 } };
+    const miring = hp && S.peran !== 'M'; // Manager Koperasi: label GERAI/KLINIK/GUDANG tetap tegak di HP
+    opsiLok.scales.x.ticks = { maxRotation: miring ? 60 : 0, minRotation: miring ? 60 : 0, autoSkip: false, font: { size: hp ? 11 : 12 } };
     buat('m1-grafik-lokasi', { type: 'bar', data: {
       labels: grafikLok.map(x => x.label),
       datasets: [{ label: 'Jumlah Barang', data: grafikLok.map(x => x.jumlah), backgroundColor: '#E11D2A', borderRadius: 6, maxBarThickness: 38 }] }, options: opsiLok });
