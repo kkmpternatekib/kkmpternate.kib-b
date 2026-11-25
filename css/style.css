@@ -629,6 +629,7 @@ textarea.masukan { height: auto; min-height: 72px; padding: 10px 14px; resize: v
 .warna-ungu { background: rgba(139, 92, 246, .15); color: #A78BFA; }
 .warna-abu { background: var(--surface-2); color: var(--muted); }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid-2:has(> .tersembunyi) { grid-template-columns: minmax(0, 1fr); }
 .grafik { position: relative; height: 280px; }
 .analitik { display: flex; flex-direction: column; gap: 12px; }
 .analitik-item {
@@ -812,6 +813,8 @@ textarea.masukan { height: auto; min-height: 72px; padding: 10px 14px; resize: v
   }
   .tabel-kartu td::before { content: attr(data-label); font-weight: 700; color: var(--muted); text-align: left; }
   .tabel-kartu td[data-label=""]::before, .tabel-kartu td.sel-kosong::before { display: none; }
+  .tabel-kartu td.sel-kosong { display: block; padding: 0; text-align: center; }
+  .tabel-kartu td.sel-kosong .kosong { width: 100%; }
   .tabel-kartu tbody tr:nth-child(even) td, .tabel-kartu tbody tr:hover td { background: none; }
   .tabel-kartu .kol-no, .tabel-kartu .kol-aksi { width: 100%; text-align: right !important; }
   .tabel-wadah { border: 0; overflow: visible; }

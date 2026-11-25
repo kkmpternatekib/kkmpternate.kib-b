@@ -1432,6 +1432,7 @@ var M1 = {
     try { await muatChart(); } catch (e) { return; }
     if (S.menu !== 'm1' || !S.dash) return;
     const d = S.dash, gaya = getComputedStyle($('hal-app'));
+    const hp = window.innerWidth <= 640;
     const teks = gaya.getPropertyValue('--muted').trim(), garis = gaya.getPropertyValue('--border').trim();
     window.Chart.defaults.font.family = '"Plus Jakarta Sans", Arial, sans-serif';
     window.Chart.defaults.color = teks;
@@ -1448,14 +1449,15 @@ var M1 = {
     buat('m1-grafik-kondisi', { type: 'doughnut', data: {
       labels: d.perKondisi.map(x => x.nama),
       datasets: [{ data: d.perKondisi.map(x => x.jumlah), backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom' } } } });
+      options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom',
+        labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: hp ? 10 : 12, boxHeight: hp ? 10 : 12, padding: hp ? 10 : 16, font: { size: hp ? 12 : 13 } } } } } });
     const cp = d.capaian || { kendaraan: { realisasi: 0, target: 0, persen: 0 }, sarpras: { realisasi: 0, target: 0, persen: 0 } };
-    const baris = [['Kendaraan Operasional', cp.kendaraan], ['Sarana dan Prasarana', cp.sarpras]];
+    const baris = [[hp ? ['Kendaraan', 'Operasional'] : ['Kendaraan Operasional'], cp.kendaraan], [hp ? ['Sarana dan', 'Prasarana'] : ['Sarana dan Prasarana'], cp.sarpras]];
     buat('m1-grafik-capaian', { type: 'bar', data: {
-      labels: baris.map(x => x[0] + ' (' + x[1].realisasi + '/' + x[1].target + ')'),
+      labels: baris.map(x => x[0].concat('(' + x[1].realisasi + '/' + x[1].target + ')')),
       datasets: [{ label: 'Realisasi', data: baris.map(x => x[1].persen), backgroundColor: ['#E11D2A', '#38BDF8'], borderRadius: 6, maxBarThickness: 34 }] },
       options: Object.assign(sumbu(), { indexAxis: 'y',
-        scales: { x: { min: 0, max: 100, grid: { color: garis }, ticks: { callback: v => v + '%' } }, y: { grid: { color: garis } } },
+        scales: { x: { min: 0, max: 100, grid: { color: garis }, ticks: { callback: v => v + '%', font: { size: hp ? 11 : 12 } } }, y: { grid: { color: garis }, ticks: { font: { size: hp ? 12 : 13 } } } },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => {
           const x = baris[c.dataIndex][1];
           return ' ' + String(x.persen).replace('.', ',') + '% (' + x.realisasi + ' dari ' + x.target + ' item)';
