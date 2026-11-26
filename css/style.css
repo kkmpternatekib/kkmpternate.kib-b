@@ -827,6 +827,19 @@ textarea.masukan { height: auto; min-height: 72px; padding: 10px 14px; resize: v
   .peran-m #topbar-kkmp { grid-area: kkmp; justify-self: stretch; justify-content: center; border-radius: 10px; padding: 8px 12px; }
   .peran-m #topbar-kkmp b { max-width: none; white-space: normal; text-align: center; }
   .peran-m .topbar-judul h1, .peran-m .topbar-judul p { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; }
+
+  /* Cetak Stiker: 3 tab dibagi rata selebar card, ikon di atas teks (tidak keluar dari card) */
+  #m7 .bilah-alat > .tab { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  #m7 .bilah-alat > .tab .tab-item {
+    flex-direction: column; justify-content: center; gap: 4px; height: auto; min-height: 56px;
+    padding: 8px 4px; white-space: normal; text-align: center; line-height: 1.2; font-size: 12px;
+  }
+  #m7 .bilah-alat > .pengisi { display: none; }
+  #m7 .bilah-alat > .pilih { flex: 1 1 100%; }
+
+  /* Slider + kotak angka (Ukuran QR) tidak melebar keluar card */
+  .geser-baris .geser { min-width: 0; }
+  .geser-baris .masukan-pendek { flex: 0 0 84px; width: 84px; }
   .tabel-kartu td.sel-kosong .kosong { width: 100%; }
   .tabel-kartu tbody tr:nth-child(even) td, .tabel-kartu tbody tr:hover td { background: none; }
   .tabel-kartu .kol-no, .tabel-kartu .kol-aksi { width: 100%; text-align: right !important; }
